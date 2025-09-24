@@ -65,6 +65,7 @@ const ProfileMenu = () => {
   const logoutHandler = async () => {
     try {
       await logout(); // calls backend + clears accessToken + user
+      localStorage.removeItem("userId");
       setMessage("Logged out successfully!");
       setSeverity("success");
       setOpen(true);

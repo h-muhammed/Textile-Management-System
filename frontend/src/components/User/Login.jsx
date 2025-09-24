@@ -12,12 +12,61 @@ import {
   Button,
 } from "@mui/material";
 import { ArrowForward } from "@mui/icons-material";
+import { useGoogleLogin } from "@react-oauth/google";
 
 function Login() {
-  const { login, user } = useAuth();
+  const { login, user, loginWithGoogle } = useAuth();
   const [isRightPanelActive, setIsRightPanelActive] = useState(false);
   const containerRef = useRef(null);
-const navigate = useNavigate();
+  const navigate = useNavigate();
+
+  // Google OAuth
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        console.log('Google login success:', tokenResponse);
+        
+        // Fetch user info from Google
+        const userInfoResponse = await fetch(
+          `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenResponse.access_token}`
+        );
+        const userInfo = await userInfoResponse.json();
+        
+        console.log('Google user info:', userInfo);
+        
+        // Create a mock user object compatible with your auth system
+        const googleUser = {
+          id: userInfo.id,
+          name: userInfo.name,
+          email: userInfo.email,
+          picture: userInfo.picture,
+          role: "user" // Default role for Google users
+        };
+        
+        // Set user in your auth context
+        loginWithGoogle(googleUser);
+        
+        setMessage("Google Login Success!");
+        setSeverity("success");
+        setOpen(true);
+        
+        // Navigate to home page
+        setTimeout(() => navigate("/home"), 1000);
+        
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+        setMessage("Google Login Failed!");
+        setSeverity("error");
+        setOpen(true);
+      }
+    },
+    onError: (error) => {
+      console.error('Google login error:', error);
+      setMessage("Google Login Failed!");
+      setSeverity("error");
+      setOpen(true);
+    },
+  });
   // Control login
   const [User, setUser] = useState({
     email: "",
@@ -47,8 +96,8 @@ const handleLoginSubmit = async (e) => {
   try {
  
     const u = await login(User.email, User.password);
+    localStorage.setItem("userId", u.id);
 
-    
     if (u.role === "admin") {
       setMessage("Hello Admin!!");
       setOpen(true);
@@ -150,6 +199,11 @@ const handleLoginSubmit = async (e) => {
     setOpen(false);
   };
 
+  // Google login handler
+  const handleGoogleLogin = () => {
+    googleLogin();
+  };
+
   return (
     <div
       style={{
@@ -211,9 +265,19 @@ const handleLoginSubmit = async (e) => {
               <a href="#" className="social">
                 <i className="fab fa-facebook-f"></i>
               </a>
-              <a href="#" className="social">
+              <button 
+                type="button"
+                onClick={handleGoogleLogin}
+                className="social"
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  padding: '0'
+                }}
+              >
                 <i className="fab fa-google-plus-g"></i>
-              </a>
+              </button>
               <a href="#" className="social">
                 <i className="fab fa-linkedin-in"></i>
               </a>
@@ -372,9 +436,19 @@ const handleLoginSubmit = async (e) => {
               <a href="#" className="social">
                 <i className="fab fa-facebook-f"></i>
               </a>
-              <a href="#" className="social">
+              <button 
+                type="button"
+                onClick={handleGoogleLogin}
+                className="social"
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  padding: '0'
+                }}
+              >
                 <i className="fab fa-google-plus-g"></i>
-              </a>
+              </button>
               <a href="#" className="social">
                 <i className="fab fa-linkedin-in"></i>
               </a>
