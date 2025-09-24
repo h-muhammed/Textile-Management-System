@@ -34,7 +34,7 @@ export default function App() {
           </Route>
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/userProfile" element={<UserProfile />} />
-          <Route path="/updateProfile/:id" element={<UpdateUserProfile />} />
+          <Route path="/updateProfile" element={<UpdateUserProfile />} />
           <Route
             path="/OrdersDoneByTheUser"
             element={<OrdersDoneByTheUser />}
