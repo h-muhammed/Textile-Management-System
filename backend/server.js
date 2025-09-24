@@ -10,10 +10,54 @@ require("dotenv").config();
 const discountRoutes = require("./routes/DiscountRoutes");
 const adminDiscountRoutes = require("./routes/AdminDiscount");
 const chatBotRoutes = require("./routes/AiBotRoute.js");
+
+const helmet = require("helmet");
+
+const cookieParser = require("cookie-parser");
+const app = express();
+const corsOpts = {
+  origin: "http://localhost:5173",          // exact origin (no *)
+  credentials: true,                         // allow cookies/Authorization
+  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
+};
+app.use(cors(corsOpts));
+app.options("*", cors(corsOpts));            // handle preflight globally
+
+app.use(cookieParser());
+app.use(express.json());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdn.jsdelivr.net",
+          "http://localhost:5173",
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: [
+          "'self'",
+          "http://localhost:5173",
+          "http://localhost:3001",
+        ],
+        frameSrc: ["'self'"],
+      },
+    },
+  })
+);
+
 const productRoutes = require("./routes/productRoutes.js");
 const cartRoutes = require("./routes/cart");
 const orderRoutes = require("./routes/order");
-const loginRoutes = require("./routes/UserLoginRoute.js");
+
+
+const loginRoutes = require("./Routes/UserLoginRoute.js");
+
 const userRouter = require("./routes/UserManagmentRoute.js");
 const userProfile = require("./routes/UserProfileRoutes.js");
 
@@ -45,6 +89,12 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 }; 
 app.use(cors(corsOptions));
+
+// Discount routes
+app.use("/api/chatbot", chatBotRoutes);
+app.use("/api/discount", discountRoutes);
+app.use("/api/admindis", adminDiscountRoutes);
+
 
 // Apply rate limiting to all API endpoints
 const apiLimiter = rateLimit({
