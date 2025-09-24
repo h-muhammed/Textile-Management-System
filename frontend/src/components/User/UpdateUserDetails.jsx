@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Snackbar, Alert } from "@mui/material"; // Import Snackbar and Alert
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Profile.css";
 
 import api from "../../services/api";
@@ -13,7 +13,6 @@ function UpdateUserProfile() {
     phone: "",
     address: "",
   });
-  const { id } = useParams();
   const navigate = useNavigate(); // For navigation after successful update
 
   // Snackbar state
@@ -24,7 +23,7 @@ function UpdateUserProfile() {
   useEffect(() => {
     const fetchHandler = async () => {
       try {
-        const response = await api.get(`/user/${id}`);
+        const response = await api.get(`/userProfile/`);
         setUser(response.data.user);
       } catch (error) {
         setMessage("Error fetching user details");
@@ -34,11 +33,11 @@ function UpdateUserProfile() {
       }
     };
     fetchHandler();
-  }, [id]);
+  }, []);
 
   const sendRequest = async () => {
     try {
-      await api.put(`/user/${id}`, user);
+      await api.put(`/userProfile/`, user);
     } catch (error) {
       setMessage("Error updating user details");
       setSeverity("error");

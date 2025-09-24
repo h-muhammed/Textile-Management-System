@@ -17,7 +17,7 @@ function issueTokens(payload) {
 }
 
 const loginUser = async (req, res, next) => {
- const { email, password } = req.body;
+  const { email, password } = req.body;
   const user = await User.findOne({ email }).select("+password");
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ message: "Invalid credentials" });
@@ -28,8 +28,8 @@ const loginUser = async (req, res, next) => {
 
   // Set refresh token cookie (HttpOnly, Secure, SameSite)
   res.cookie("rt", refreshToken, {
-    httpOnly: true,         // true in production (HTTPS)
-    sameSite: "Strict",    // or "Lax" if you need cross-site GET navigations
+    httpOnly: true, // true in production (HTTPS)
+    sameSite: "Strict", // or "Lax" if you need cross-site GET navigations
     path: "/login/refresh", // cookie only sent to refresh endpoint
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
@@ -47,7 +47,10 @@ const refreshTokens = (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const { accessToken, refreshToken } = issueTokens({ sub: decoded.sub, role: decoded.role });
+    const { accessToken, refreshToken } = issueTokens({
+      sub: decoded.sub,
+      role: decoded.role,
+    });
 
     // rotate refresh token
     res.cookie("rt", refreshToken, {
@@ -61,15 +64,13 @@ const refreshTokens = (req, res) => {
   } catch {
     res.status(401).json({ message: "Invalid refresh token" });
   }
-}
+};
 
 ///admin authentication
-
 
 const logoutUser = async (req, res, next) => {
   res.clearCookie("rt", { path: "/login/refresh" });
   res.status(204).end();
-  
 };
 
 exports.loginUser = loginUser;

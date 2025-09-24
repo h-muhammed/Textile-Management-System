@@ -7,6 +7,7 @@ import { jsPDF } from "jspdf"; // Import jsPDF for PDF generation
 import { FaDownload } from "react-icons/fa";
 
 import api from "../../services/api";
+import { clearAccessToken } from "../../tokenStore";
 
 function UserProfile() {
   const [user, setUser] = useState(null);
@@ -18,12 +19,8 @@ function UserProfile() {
 
   useEffect(() => {
     async function fetchUserDetails() {
-      const token = localStorage.getItem("token");
-      console.log("Token:", token);
       try {
-        const response = await api.get("/userProfile", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get(`/userProfile/`);
         if (response.data.status === "ok") {
           setUser(response.data.user);
         } else {
@@ -60,8 +57,10 @@ function UserProfile() {
   };
 
   const logoutHandler = () => {
-    // Remove the token from localStorage
-    localStorage.removeItem("token");
+    // Clear the token from memory store
+    clearAccessToken();
+
+    // Remove other data from localStorage
     localStorage.removeItem("userId");
     localStorage.removeItem("role");
 
@@ -276,7 +275,7 @@ function UserProfile() {
           >
             {user && (
               <Link
-                to={`/updateProfile/${user._id}`}
+                to={`/updateProfile`}
                 style={{ color: "#fff", textDecoration: "none" }}
               >
                 Update
