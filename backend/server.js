@@ -6,6 +6,7 @@ require("dotenv").config(); // This loads environment variables
 const discountRoutes = require("./routes/DiscountRoutes");
 const adminDiscountRoutes = require("./routes/AdminDiscount");
 const chatBotRoutes = require("./routes/AiBotRoute.js");
+const helmet = require("helmet");
 
 const cookieParser = require("cookie-parser");
 const app = express();
@@ -20,6 +21,30 @@ app.options("*", cors(corsOpts));            // handle preflight globally
 
 app.use(cookieParser());
 app.use(express.json());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdn.jsdelivr.net",
+          "http://localhost:5173",
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: [
+          "'self'",
+          "http://localhost:5173",
+          "http://localhost:3001",
+        ],
+        frameSrc: ["'self'"],
+      },
+    },
+  })
+);
 
 const productRoutes = require("./routes/productRoutes.js");
 app.use("/Products", productRoutes);
