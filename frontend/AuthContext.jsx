@@ -26,7 +26,9 @@ export function AuthProvider({ children }) {
       try {
         const { data } = await api.post("/login/refresh", {}); // cookie flows automatically
         if (data?.accessToken) setToken(data.accessToken);
-      } catch {
+      } catch (error) {
+        // Silently handle backend connection issues
+        console.log("Backend not available, continuing without session restoration");
         setToken(null);
         setUser(null);
       } finally {
@@ -49,8 +51,16 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  // Function to handle Google OAuth login
+  const loginWithGoogle = (googleUser) => {
+    // For now, just set the user without backend integration
+    // You can later modify this to send user data to your backend
+    setUser(googleUser);
+    setToken('google-oauth-token'); // Placeholder token
+  };
+
   const value = useMemo(
-    () => ({ accessToken, user, isAuthReady, login, logout, setAccessToken: setToken }),
+    () => ({ accessToken, user, isAuthReady, login, logout, loginWithGoogle, setAccessToken: setToken }),
     [accessToken, user, isAuthReady]
   );
 
